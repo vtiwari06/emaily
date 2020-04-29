@@ -1,11 +1,38 @@
 const express = require("express");
+const mongoose = require("mongoose");
+const cookieSession = require("cookie-session");
+const passport = require("passport");
+
+const keys = require("./config/keys.js");
+
+require("./models/User");
+require("./services/passport");
+
+mongoose
+  .connect(keys.mongoURI, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Database Connected"))
+  .catch((err) => console.log(err));
+
 const app = express();
 
-const PORT = process.env.PORT || 5000;
+app.use(
+  cookieSession({
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    keys: [keys.cookieKey],
+  })
+);
 
-app.get("/", (req, res) => {
-  res.send({ buy: "buddy" });
-});
+app.use(passport.initialize());
+app.use(passport.session());
+
+require("./routes/authRoutes")(app);
+
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log("Server started at port " + PORT);
