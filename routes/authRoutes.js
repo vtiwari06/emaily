@@ -8,7 +8,13 @@ module.exports = (authRoutes) => {
     })
   );
 
-  authRoutes.get("/auth/google/callback", passport.authenticate("google"));
+  authRoutes.get(
+    "/auth/google/callback", 
+    passport.authenticate("google"), 
+    (req, res) => {
+      res.redirect('/surveys');
+    }
+  );
 
   authRoutes.get("/api/current_user", (req, res) => {
     res.send(req.user);
@@ -16,6 +22,6 @@ module.exports = (authRoutes) => {
 
   authRoutes.get("/api/logout", (req, res) => {
     req.logout();
-    res.send(req.user);
+    res.redirect('/');
   });
 };
